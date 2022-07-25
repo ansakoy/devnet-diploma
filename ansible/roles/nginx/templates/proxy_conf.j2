@@ -1,0 +1,99 @@
+# Нода для wordpress
+server {
+    listen  443 ssl;
+    server_name www.{{ base_domain }} {{ base_domain }};
+
+    access_log  /var/log/nginx/{{ base_domain }}_access.log;
+    error_log   /var/log/nginx/{{ base_domain }}_error.log;
+
+    ssl_certificate /etc/letsencrypt/live/{{ base_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ base_domain }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    location / {
+        proxy_pass http://{{ address_www }};  # Тут IP ноды, на которой будет wordpress. Либо название апстрима, где детализация
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;  # Передаем информацию об исходном IP, откуда запрос
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;  # Сохраняем историю переадресаций
+    }
+}
+
+# Нода для алерт-менеджера
+server {
+    listen  443 ssl;
+    server_name alertmanager.{{ base_domain }};
+
+    access_log  /var/log/nginx/alertmanager.{{ base_domain }}_access.log;
+    error_log   /var/log/nginx/alertmanager.{{ base_domain }}_error.log;
+
+    ssl_certificate /etc/letsencrypt/live/{{ base_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ base_domain }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    location / {
+        proxy_pass http://{{ address_alertmanager }};
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Нода для гитлаба
+server {
+    listen  443 ssl;
+    server_name gitlab.{{ base_domain }};
+
+    access_log  /var/log/nginx/gitlab.{{ base_domain }}_access.log;
+    error_log   /var/log/nginx/gitlab.{{ base_domain }}_error.log;
+
+    ssl_certificate /etc/letsencrypt/live/{{ base_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ base_domain }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    location / {
+        proxy_pass http://{{ address_gitlab }};
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Нода для графаны
+server {
+    listen  443 ssl;
+    server_name grafana.{{ base_domain }};
+
+    access_log  /var/log/nginx/grafana.{{ base_domain }}_access.log;
+    error_log   /var/log/nginx/grafana.{{ base_domain }}_error.log;
+
+    ssl_certificate /etc/letsencrypt/live/{{ base_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ base_domain }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    location / {
+        proxy_pass http://{{ address_grafana }};
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+
+# Нода для прометея
+server {
+    listen  443 ssl;
+    server_name prometheus.{{ base_domain }};
+
+    access_log  /var/log/nginx/prometheus.{{ base_domain }}_access.log;
+    error_log   /var/log/nginx/prometheus.{{ base_domain }}_error.log;
+
+    ssl_certificate /etc/letsencrypt/live/{{ base_domain }}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ base_domain }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+
+    location / {
+        proxy_pass http://{{ address_prometheus }};
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}

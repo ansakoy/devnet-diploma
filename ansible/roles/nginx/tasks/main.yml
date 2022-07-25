@@ -1,0 +1,53 @@
+---
+- name: Install NGINX
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Install Certbot for NGINX
+  ansible.builtin.package:
+    name: "python3-certbot-nginx"
+    state: present
+
+- name: Create home directory for WP
+  ansible.builtin.file:
+    path: "/var/www/{{ base_domain }}"
+    state: directory
+
+- name: Install LetsEncrypt
+  ansible.builtin.apt:
+    name: letsencrypt
+    state: present
+
+- name: Makedir for certs
+  ansible.builtin.file:
+    path: /var/www/letsencrypt
+    state: directory
+
+- name: Obtain certificate if not exists
+  ansible.builtin.shell: >
+    certbot certonly --nginx --register-unsafely-without-email --non-interactive --agree-tos
+    -d '{{ base_domain }}'
+    -d 'www.{{ base_domain }}'
+    -d 'alertmanager.{{ base_domain }}'
+    -d 'gitlab.{{ base_domain }}'
+    -d 'grafana.{{ base_domain }}'
+    -d 'prometheus.{{ base_domain }}'
+    {% if workspace == "stage" %} --staging {% endif %}
+
+- name: Disable the default NGINX site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default"
+    state: absent
+
+- name: Copy NGINX config
+  ansible.builtin.template:
+    src: templates/proxy_conf.j2
+    dest: /etc/nginx/conf.d/{{ base_domain }}.conf
+    backup: true
+
+- name: Restart NGINX  # Избегаем по возможности хэндлеров по причине их малопредсказуемого поведения в некоторых сценариях
+  ansible.builtin.service:
+    name: nginx
+    state: restarted

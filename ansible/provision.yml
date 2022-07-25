@@ -1,0 +1,11 @@
+---
+- hosts: proxy
+  become: true
+  gather_facts: false
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  vars:
+    ansible_host_key_checking: false
+  roles:
+    - nginx

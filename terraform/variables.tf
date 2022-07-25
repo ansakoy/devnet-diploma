@@ -20,7 +20,7 @@ variable "yc_sa_account" {
 
 variable "yc_sa_key_path" {
   type = string
-  default = "/Users/ansakoy/Documents/Courses/netology/devnet-diploma/key.json"
+  default = "/home/ansakoy/diploma/key.json"
   description = "Путь к ключу сервисного аккаунта"
 }
 
@@ -36,3 +36,30 @@ variable "yc_zone_1b" {
   description = "Зона доступности B"
 }
 
+variable "access_key_id" {
+  type = string
+  default = ""
+  description = "Access key для бакета"
+}
+
+variable "access_key_secret" {
+  type = string
+  default = ""
+  description = "Secret для access key бакета"
+}
+
+variable "domain" {
+  type = string
+  default = ""
+  description = "Домен, на котором будут создаваться поддомены"
+}
+
+variable "ubuntu2004" {
+  type = string
+  default = "fd8f1tik9a7ap9ik2dg1"
+  description = "Образ Убунту 20.04"
+}
+
+variable "ssh_key_file" {
+  default = "~/.ssh/id_ed25519"
+}
