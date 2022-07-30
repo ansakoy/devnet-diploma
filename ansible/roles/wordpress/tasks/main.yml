@@ -1,0 +1,87 @@
+---
+- name: Remove Apache
+  apt:
+    name:
+      - apache2
+      - apache2-utils
+    state: absent
+
+- name: Install NGINX
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true
+
+- name: Disable the default NGINX site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
+- name: Copy NGINX config
+  ansible.builtin.template:
+    src: templates/nginx_conf.j2
+    dest: /etc/nginx/conf.d/{{ base_domain }}.conf
+    backup: true
+
+- name: Install PHP tools
+  ansible.builtin.apt:
+    name:
+      - php7.4
+      - php7.4-fpm
+      - php7.4-mysql
+      - php7.4-curl
+      - php7.4-gd
+      - php7.4-intl
+      - php7.4-mbstring
+      - php7.4-soap
+      - php7.4-xml
+      - php7.4-xmlrpc
+      - php7.4-zip
+    update_cache: true
+    state: present
+
+- name: Create document root
+  ansible.builtin.file:
+    path: "/var/www/{{ base_domain }}"
+    state: directory
+    owner: "www-data"
+    group: "www-data"
+    mode: "0755"
+
+- name: Download and unarchive Wordpress (latest)
+  ansible.builtin.unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: "/var/tmp"
+    remote_src: yes
+
+- name: Copy WP files from /var/tmp to /var/www
+  ansible.builtin.copy:
+    src: "/var/tmp/wordpress/"
+    dest: "/var/www/{{ base_domain }}"
+    remote_src: true
+
+- name: Chown www-data:www-data var www base_domain
+  ansible.builtin.file:
+    path: "/var/www/{{ base_domain }}"
+    state: directory
+    recurse: true
+    owner: "www-data"
+    group: "www-data"
+
+- name: Set permissions for directories
+  ansible.builtin.shell: "/usr/bin/find /var/www/{{ base_domain }}/ -type d -exec chmod 755 {} \\;"
+
+- name: Set permissions for files
+  ansible.builtin.shell: "/usr/bin/find /var/www/{{ base_domain }}/ -type f -exec chmod 644 {} \\;"
+
+- name: Copy wp-config.php
+  ansible.builtin.template:
+    src: "templates/wp-config.j2"
+    dest: "/var/www/{{ base_domain }}/wp-config.php"
+
+- name: Restart NGINX
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+
+

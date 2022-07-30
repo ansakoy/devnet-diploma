@@ -1,6 +1,6 @@
 resource "yandex_compute_instance" "node-alertmanager" {
   name                      = "node-alertmanager-${terraform.workspace}"
-  zone                      = var.yc_zone_1a
+  zone                      = var.yc_zone_1b
   hostname                  = "alertmanager.${var.domain}"
   description = "Машина для алертов"
   platform_id = "standard-v2"
@@ -22,7 +22,8 @@ resource "yandex_compute_instance" "node-alertmanager" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet-a.id
+    subnet_id = yandex_vpc_subnet.subnet-b.id
+    ip_address = "192.168.100.12"
   }
 
   metadata = {

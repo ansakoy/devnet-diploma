@@ -14,7 +14,7 @@ resource "yandex_compute_instance" "node-proxy" {
 
   boot_disk {
     initialize_params {
-      image_id    = var.ubuntu2004  # Ставим заданную версию системы во избежание проблем с обновленными версиями
+      image_id    = var.ubuntu1804  # Ставим версию системы, пригодную для nat-инстанса
       name        = "root-node-proxy"
       type        = "network-nvme"
       size        = "20"
@@ -24,6 +24,7 @@ resource "yandex_compute_instance" "node-proxy" {
   network_interface {
     subnet_id = yandex_vpc_subnet.subnet-a.id
     nat       = true
+    ip_address = "192.168.10.12"
   }
 
   metadata = {

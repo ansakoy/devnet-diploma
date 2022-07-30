@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from pathlib import Path
+import secrets
 import sys
 from typing import Optional
 
@@ -21,6 +22,8 @@ env = environ.Env(
     TF_VAR_ACCESS_KEY_ID=(str, ""),
     TF_VAR_ACCESS_KEY_SECRET=(str, ""),
     DOMAIN=(str, ""),
+    MYSQL_SLAVE_USER_PASS=(str, ""),
+    MYSQL_WP_USER_PASS=(str, ""),
 )
 environ.Env.read_env(str(BASE_DIR / ".env"))
 
@@ -34,6 +37,17 @@ CLOUD_ID = env('CLOUD_ID')
 TF_VAR_ACCESS_KEY_ID = env('TF_VAR_ACCESS_KEY_ID')
 TF_VAR_ACCESS_KEY_SECRET = env('TF_VAR_ACCESS_KEY_SECRET')
 DOMAIN = env('DOMAIN')
+MYSQL_SLAVE_USER_PASS = env('MYSQL_SLAVE_USER_PASS')
+MYSQL_WP_USER_PASS = env('MYSQL_WP_USER_PASS')
+
+WP_AUTH_KEY = "wp_auth_key"
+WP_SECURE_AUTH_KEY = "wp_secure_auth_key"
+WP_LOGGED_IN_KEY = "wp_logged_in_key"
+WP_NONCE_KEY = "wp_nonce_key"
+WP_AUTH_SALT = "wp_auth_salt"
+WP_SECURE_AUTH_SALT = "wp_secure_auth_salt"
+WP_LOGGED_IN_SALT = "wp_logged_in_salt"
+WP_NONCE_SALT = "wp_nonce_salt"
 
 
 # Вспомогательные функции
@@ -180,7 +194,18 @@ class YandexCloudConfig:
             {"access_key_secret": {"default": "", "description": "Secret для access key бакета"}},
             {"domain": {"default": DOMAIN, "description": "Домен, на котором будут создаваться поддомены"}},
             {"ubuntu2004": {"default": "fd8f1tik9a7ap9ik2dg1", "description": "Образ Убунту 20.04"}},
+            {"ubuntu1804": {"default": "fd84mnpg35f7s7b0f5lg", "description": "Образ Убунту 18.04"}},
             {"ssh_key_file": {"default": "~/.ssh/id_ed25519", "description": "Ключ SSH"}},
+            {"mysql_slave_user_pass": {"default": MYSQL_SLAVE_USER_PASS, "description": "Пароль для реплики MySQL"}},
+            {"mysql_wp_user_pass": {"default": MYSQL_WP_USER_PASS, "description": "Пароль для юзера wordpress"}},
+            {WP_AUTH_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_SECURE_AUTH_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_LOGGED_IN_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_NONCE_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_AUTH_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_SECURE_AUTH_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_LOGGED_IN_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {WP_NONCE_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
         ]
         block = 'variable "{var_name}" {{\n  type = string\n  default = ' \
                 '"{default}"\n  description = "{description}"\n}}\n\n'
@@ -219,3 +244,4 @@ if __name__ == '__main__':
     yacl.generate_sa_key()
     yacl.generate_variables_tf()
     # init_terraform_with_bucket()
+

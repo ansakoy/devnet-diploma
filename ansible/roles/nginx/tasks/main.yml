@@ -1,4 +1,8 @@
 ---
+- name: Wait 300 seconds for conn to be established
+  ansible.builtin.wait_for_connection:
+    timeout: 300
+
 - name: Install NGINX
   ansible.builtin.apt:
     name: nginx
@@ -46,6 +50,79 @@
     src: templates/proxy_conf.j2
     dest: /etc/nginx/conf.d/{{ base_domain }}.conf
     backup: true
+
+- name: Copy SSH config
+  ansible.builtin.template:
+    src: templates/ssh_conf.j2
+    dest: /home/ubuntu/.ssh/config
+    backup: true
+
+- name: Copy SSH private key to proxy-ubuntu
+  ansible.builtin.copy:
+    src: ~/.ssh/id_ed25519
+    dest: /home/ubuntu/.ssh/
+    mode: "0400"
+    owner: ubuntu
+    group: ubuntu
+
+
+- name: Copy SSH private key to proxy-root
+  ansible.builtin.copy:
+    src: ~/.ssh/id_ed25519
+    dest: /root/.ssh/
+    mode: "0400"
+    owner: root
+    group: root
+
+
+- name: Copy SSH public key to proxy ubuntu
+  ansible.builtin.copy:
+    src: ~/.ssh/id_ed25519.pub
+    dest: /home/ubuntu/.ssh/
+    mode: "0644"
+    owner: ubuntu
+    group: ubuntu
+
+
+- name: Copy SSH public key to proxy root
+  ansible.builtin.copy:
+    src: ~/.ssh/id_ed25519.pub
+    dest: /root/.ssh/
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Add internal hosts to known_hosts - root
+  ansible.builtin.shell: ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
+  loop:
+    - "{{ address_www }}"
+    - "{{ address_alertmanager }}"
+    - "{{ address_gitlab }}"
+    - "{{ address_grafana }}"
+    - "{{ address_prometheus }}"
+    - "{{ address_db01 }}"
+    - "{{ address_db02 }}"
+    - "{{ nat_ip_address }}"
+
+- name: Add internal hosts to known_hosts - ubuntu
+  ansible.builtin.shell: ssh-keyscan -H {{ item }} >> /home/ubuntu/.ssh/known_hosts
+  loop:
+    - "{{ address_www }}"
+    - "{{ address_alertmanager }}"
+    - "{{ address_gitlab }}"
+    - "{{ address_grafana }}"
+    - "{{ address_prometheus }}"
+    - "{{ address_db01 }}"
+    - "{{ address_db02 }}"
+    - "{{ nat_ip_address }}"
+
+
+- name: Copy hosts config
+  ansible.builtin.template:
+    src: templates/etc_hosts.j2
+    dest: /etc/hosts
+    backup: true
+
 
 - name: Restart NGINX  # Избегаем по возможности хэндлеров по причине их малопредсказуемого поведения в некоторых сценариях
   ansible.builtin.service:

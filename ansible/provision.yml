@@ -1,4 +1,9 @@
 ---
+- hosts: local
+  gather_facts: false
+  roles:
+    - localstuff
+
 - hosts: proxy
   become: true
   gather_facts: false
@@ -9,3 +14,25 @@
     ansible_host_key_checking: false
   roles:
     - nginx
+
+- hosts: databases
+  become: true
+  gather_facts: false
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  vars:
+    ansible_host_key_checking: false
+  roles:
+    - mysql
+
+- hosts: www
+  become: true
+  gather_facts: false
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  vars:
+    ansible_host_key_checking: false
+  roles:
+    - wordpress

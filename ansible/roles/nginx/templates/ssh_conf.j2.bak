@@ -1,0 +1,47 @@
+Host {{ address_www }}
+    HostName {{ address_www }}
+    IdentityFile {{ ssh_key_file }}
+    ProxyJump {{ nat_ip_address }}
+    User ubuntu
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host {{ address_db01 }}
+    HostName {{ address_db01 }}
+    IdentityFile {{ ssh_key_file }}
+    ProxyJump {{ nat_ip_address }}
+    User ubuntu
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host {{ address_db02 }}
+    HostName {{ address_db02 }}
+    IdentityFile {{ ssh_key_file }}
+    ProxyJump {{ nat_ip_address }}
+    User ubuntu
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host {{ address_gitlab }}
+    HostName {{ address_gitlab }}
+    IdentityFile {{ ssh_key_file }}
+    ProxyJump {{ nat_ip_address }}
+    User ubuntu
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host {{ address_grafana }}
+    HostName {{ address_grafana }}
+    IdentityFile {{ ssh_key_file }}
+    ProxyJump {{ nat_ip_address }}
+    User ubuntu
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+
+Host {{ address_prometheus }}
+    HostName {{ address_prometheus }}
+    IdentityFile {{ ssh_key_file }}
+    ProxyJump {{ nat_ip_address }}
+    User ubuntu
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null

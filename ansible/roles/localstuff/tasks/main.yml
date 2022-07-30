@@ -1,0 +1,7 @@
+---
+
+- name: Sleep for 30 seconds and continue with play for the host to become available
+  wait_for: timeout=30
+
+- name: Add host to known_keys
+  ansible.builtin.shell: ssh-keyscan -H {{ nat_ip_address }} >> ~/.ssh/known_hosts
