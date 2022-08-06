@@ -1,0 +1,11 @@
+---
+- hosts: monitoring
+  become: true
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  roles:
+   - prometheus
+   - grafana
+   - alertmanager
+   - node_exporter

@@ -1,0 +1,57 @@
+---
+- name: Install and configure the necessary dependencies
+  ansible.builtin.apt:
+    name:
+      - curl
+      - openssh-server
+      - ca-certificates
+      - tzdata
+      - perl
+      - python3-pip
+    update_cache: true
+    state: present
+
+- name: Add the GitLab package repository
+  ansible.builtin.shell: "curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash"
+
+- name: Install Gitlab
+  ansible.builtin.apt:
+    name: gitlab-ce
+    update_cache: true
+    state: present
+
+- name: Copy omnibus template
+  ansible.builtin.template:
+    src: "templates/gitlab_conf.j2"
+    dest: "/etc/gitlab/gitlab.rb"
+
+- name: Reconfigure Gitlab after config change
+  ansible.builtin.shell: "sudo gitlab-ctl reconfigure"
+
+- name: Change root password
+  ansible.builtin.shell: sudo gitlab-rails runner "user = User.where(id{{':'}} 1).first; user.password = '{{ gitlab_root_pass }}'; user.password_confirmation = '{{ gitlab_root_pass }}'; user.save!"
+
+- name: restart gitlab wait 5 mins and then try to connect to "https://gitlab.{{ base_domain }}"
+  ansible.builtin.command: "gitlab-ctl restart"
+
+- name: Wait 5 mins before connecting to "https://gitlab.{{ base_domain }}"
+  ansible.builtin.pause:
+    minutes: 5
+
+- name: Create user for runner
+  ansible.builtin.user:
+    name: gitlab-runner
+    comment: "GitLab Runner"
+    shell: /bin/bash
+    state: present
+
+- name: Create user for runner
+  ansible.builtin.user:
+    name: gitlab-runner
+    comment: "GitLab Runner"
+    shell: /bin/bash
+    state: present
+
+- name: Copy SSH public key to gitlab-runner authorized_keys at Gitlab machine
+  ansible.builtin.shell: "cat /home/ubuntu/.ssh/id_ed25519.pub > /home/gitlab-runner/.ssh/"
+

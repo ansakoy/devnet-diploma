@@ -96,10 +96,8 @@
   ansible.builtin.shell: ssh-keyscan -H {{ item }} >> ~/.ssh/known_hosts
   loop:
     - "{{ address_www }}"
-    - "{{ address_alertmanager }}"
+    - "{{ address_monitoring }}"
     - "{{ address_gitlab }}"
-    - "{{ address_grafana }}"
-    - "{{ address_prometheus }}"
     - "{{ address_db01 }}"
     - "{{ address_db02 }}"
     - "{{ nat_ip_address }}"
@@ -108,10 +106,8 @@
   ansible.builtin.shell: ssh-keyscan -H {{ item }} >> /home/ubuntu/.ssh/known_hosts
   loop:
     - "{{ address_www }}"
-    - "{{ address_alertmanager }}"
+    - "{{ address_monitoring }}"
     - "{{ address_gitlab }}"
-    - "{{ address_grafana }}"
-    - "{{ address_prometheus }}"
     - "{{ address_db01 }}"
     - "{{ address_db02 }}"
     - "{{ nat_ip_address }}"

@@ -1,0 +1,31 @@
+---
+
+- name: Get Gitlab runner
+  ansible.builtin.shell: "curl -L --output /usr/local/bin/gitlab-runner https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-linux-amd64"
+
+- name: Change file ownership
+  ansible.builtin.file:
+    path: /usr/local/bin/gitlab-runner
+    mode: '0755'
+
+- name: Add the user for Gitlab runner
+  ansible.builtin.user:
+    name: gitlab-runner
+    comment: "GitLab Runner"
+    shell: /bin/bash
+    state: present
+
+- name: Copy SSH private key to gitlab-runner
+  ansible.builtin.copy:
+    src: ~/.ssh/id_ed25519
+    dest: /home/gitlab-runner/.ssh/
+    mode: "0400"
+    owner: gitlab-runner
+    group: gitlab-runner
+
+- name: Install Gitlab runner
+  ansible.builtin.shell: "sudo gitlab-runner install --user=gitlab-runner --working-directory=/home/gitlab-runner"
+
+- name: Start Gitlab runner
+  ansible.builtin.shell: "sudo gitlab-runner start"
+

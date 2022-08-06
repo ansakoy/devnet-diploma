@@ -9,17 +9,14 @@ ${nat_ip_address} ansible_host="${nat_ip_address}" ansible_user="ubuntu" ansible
 [www]
 ${address_www} ansible_host="${address_www}"
 
-[alertmanager]
-${address_alertmanager} ansible_host="${address_alertmanager}"
+[monitoring]
+${address_monitoring} ansible_host="${address_monitoring}"
 
 [gitlab]
 ${address_gitlab} ansible_host="${address_gitlab}"
 
-[grafana]
-${address_grafana} ansible_host="${address_grafana}"
-
-[prometheus]
-${address_prometheus} ansible_host="${address_prometheus}"
+[runner]
+${address_runner} ansible_host="${address_runner}"
 
 [db01]
 ${address_db01} ansible_host=${address_db01}
@@ -36,26 +33,30 @@ nat_ip_address="${nat_ip_address}"
 [symphony:children]
 proxy
 www
-alertmanager
+monitoring
 gitlab
-grafana
-prometheus
 db01
 db02
+runner
+
+[gitlabstuff:children]
+gitlab
+runner
 
 [symphony:vars]
 base_domain="${base_domain}"
 address_www="${address_www}"
-address_alertmanager="${address_alertmanager}"
+address_monitoring="${address_monitoring}"
 address_gitlab="${address_gitlab}"
-address_grafana="${address_grafana}"
-address_prometheus="${address_prometheus}"
 workspace="${workspace}"
 ssh_key_file="${ssh_key_file}"
 nat_ip_address=${nat_ip_address}
 address_db01="${address_db01}"
 address_db02="${address_db02}"
 ansible_ssh_common_args='-o ControlMaster=auto -o ControlPersist=10m -o ProxyCommand="ssh -W %h:%p -q ubuntu@${nat_ip_address}"'
+address_runner=${address_runner}
+monitor_user="monitor"
+monitor_pass=${monitor_pass}
 
 
 [databases:children]
@@ -85,3 +86,7 @@ wp_auth_salt="${wp_auth_salt}"
 wp_secure_auth_salt="${wp_secure_auth_salt}"
 wp_logged_in_salt="${wp_logged_in_salt}"
 wp_nonce_salt="${wp_nonce_salt}"
+
+[gitlabstuff:vars]
+gitlab_root_pass="${gitlab_root_pass}"
+address_runner=${address_runner}

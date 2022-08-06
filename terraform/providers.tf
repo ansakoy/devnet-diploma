@@ -11,8 +11,8 @@ terraform {
     bucket     = "bucket-07-3"
     region     = "ru-central1"
     key        = "terraform.tfstate"
-    access_key = var.access_key_id
-    secret_key = var.access_key_secret
+//    access_key = var.access_key_id
+//    secret_key = var.access_key_secret
 
     skip_region_validation      = true
     skip_credentials_validation = true

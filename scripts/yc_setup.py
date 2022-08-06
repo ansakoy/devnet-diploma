@@ -24,6 +24,8 @@ env = environ.Env(
     DOMAIN=(str, ""),
     MYSQL_SLAVE_USER_PASS=(str, ""),
     MYSQL_WP_USER_PASS=(str, ""),
+    GITLAB_ROOT_PASS=(str, ""),
+    MONITOR_PASS=(str, ""),
 )
 environ.Env.read_env(str(BASE_DIR / ".env"))
 
@@ -39,6 +41,8 @@ TF_VAR_ACCESS_KEY_SECRET = env('TF_VAR_ACCESS_KEY_SECRET')
 DOMAIN = env('DOMAIN')
 MYSQL_SLAVE_USER_PASS = env('MYSQL_SLAVE_USER_PASS')
 MYSQL_WP_USER_PASS = env('MYSQL_WP_USER_PASS')
+GITLAB_ROOT_PASS = env('GITLAB_ROOT_PASS')
+MONITOR_PASS = env('MONITOR_PASS')
 
 WP_AUTH_KEY = "wp_auth_key"
 WP_SECURE_AUTH_KEY = "wp_secure_auth_key"
@@ -184,40 +188,83 @@ class YandexCloudConfig:
         """Сгенерировать файл terraform/variables.tf, содержащий все необходимые переменные
         """
         vars = [
-            {"yc_cloud_id": {"default": CLOUD_ID, "description": "ID облака"}},
-            {"yc_folder_id": {"default": self.folder_id, "description": "ID каталога"}},
-            {"yc_sa_account": {"default": self.sa_id, "description": "ID сервисного аккаунта"}},
-            {"yc_sa_key_path": {"default": self.key_path, "description": "Путь к ключу сервисного аккаунта"}},
-            {"yc_zone_1a": {"default": "ru-central1-a", "description": "Зона доступности A"}},
-            {"yc_zone_1b": {"default": "ru-central1-b", "description": "Зона доступности B"}},
-            {"access_key_id": {"default": "", "description": "Access key для бакета"}},
-            {"access_key_secret": {"default": "", "description": "Secret для access key бакета"}},
-            {"domain": {"default": DOMAIN, "description": "Домен, на котором будут создаваться поддомены"}},
-            {"ubuntu2004": {"default": "fd8f1tik9a7ap9ik2dg1", "description": "Образ Убунту 20.04"}},
-            {"ubuntu1804": {"default": "fd84mnpg35f7s7b0f5lg", "description": "Образ Убунту 18.04"}},
-            {"ssh_key_file": {"default": "~/.ssh/id_ed25519", "description": "Ключ SSH"}},
-            {"mysql_slave_user_pass": {"default": MYSQL_SLAVE_USER_PASS, "description": "Пароль для реплики MySQL"}},
-            {"mysql_wp_user_pass": {"default": MYSQL_WP_USER_PASS, "description": "Пароль для юзера wordpress"}},
-            {WP_AUTH_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_SECURE_AUTH_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_LOGGED_IN_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_NONCE_KEY: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_AUTH_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_SECURE_AUTH_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_LOGGED_IN_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
-            {WP_NONCE_SALT: {"default": secrets.token_urlsafe(64), "description": "Wordpress secret key"}},
+            {"yc_cloud_id": {"default": CLOUD_ID, "description": "ID облака", "type": "string", "sensitive": "true"}},
+            {"yc_folder_id": {
+                "default": self.folder_id, "description": "ID каталога", "type": "string"}
+            },
+            {"yc_sa_account": {"default": self.sa_id, "description": "ID сервисного аккаунта", "type": "string"}},
+            {"yc_sa_key_path": {
+                "default": self.key_path, "description": "Путь к ключу сервисного аккаунта", "type": "string"}
+            },
+            {"yc_zone_1a": {"default": "ru-central1-a", "description": "Зона доступности A", "type": "string"}},
+            {"yc_zone_1b": {"default": "ru-central1-b", "description": "Зона доступности B", "type": "string"}},
+            {"access_key_id": {
+                "default": "", "description": "Access key для бакета", "type": "string", "sensitive": "true"}
+            },
+            {"access_key_secret": {
+                "default": "", "description": "Secret для access key бакета", "type": "string", "sensitive": "true"}
+            },
+            {"domain": {
+                "default": DOMAIN, "description": "Домен, на котором будут создаваться поддомены", "type": "string"}
+            },
+            {"ubuntu2004": {"default": "fd8f1tik9a7ap9ik2dg1", "description": "Образ Убунту 20.04", "type": "string"}},
+            {"ubuntu1804": {
+                "default": "fd84mnpg35f7s7b0f5lg", "description": "Образ Убунту 18.04 c NAT-инстансом", "type": "string"}
+            },
+            {"ssh_key_file": {
+                "default": "~/.ssh/id_ed25519", "description": "Ключ SSH", "type": "string"}
+            },
+            {"mysql_slave_user_pass": {
+                "default": MYSQL_SLAVE_USER_PASS, "description": "Пароль для реплики MySQL", "type": "string", "sensitive": "true"}
+            },
+            {"mysql_wp_user_pass": {
+                "default": MYSQL_WP_USER_PASS, "description": "Пароль для юзера wordpress", "type": "string", "sensitive": "true"}
+            },
+            {"gitlab_root_pass": {
+                "default": GITLAB_ROOT_PASS, "description": "Пароль для юзера root в гитлабе", "type": "string", "sensitive": "true"}
+            },
+            {"monitor_pass": {
+                "default": MONITOR_PASS, "description": "Пароль для юзера для мониторинга", "type": "string",
+                "sensitive": "true"}
+            },
+            {WP_AUTH_KEY: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_SECURE_AUTH_KEY: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_LOGGED_IN_KEY: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_NONCE_KEY: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_AUTH_SALT: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_SECURE_AUTH_SALT: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_LOGGED_IN_SALT: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
+            {WP_NONCE_SALT: {
+                "default": secrets.token_urlsafe(64), "description": "Wordpress secret key", "type": "string", "sensitive": "true"}
+            },
         ]
-        block = 'variable "{var_name}" {{\n  type = string\n  default = ' \
-                '"{default}"\n  description = "{description}"\n}}\n\n'
         fname = os.path.join(BASE_DIR, "terraform", "variables.tf")
         code = "# This file was autogenerated as a result of setting up a YC account\n\n"
         for var in vars:
             var_name = list(var.keys())[0]
-            code += block.format(
-                var_name=var_name,
-                default=var[var_name]["default"],
-                description=var[var_name]["description"],
+            code += f'variable "{var_name}" {{\n'
+            code += '\n'.join(
+                [
+                    f'  {key} = "{var[var_name][key]}"'
+                    if key not in ("type", "sensitive") else f'  {key} = {var[var_name][key]}'
+                    for key in var[var_name]
+                ]
             )
+            code += '\n}\n\n'
 
         with open(fname, "w", encoding="utf-8") as handler:
             handler.write(code)
@@ -228,13 +275,14 @@ def init_terraform_with_bucket() -> None:
     ему переменные через .env. Нормальным образом через variable значения не принимаются.
     """
     logger.info(f"Running terraform init with variables for bucket...\n")
-    command = 'cd {} && terraform init \\\n    ' \
-              '-backend-config="access_key=${}" \\\n    ' \
-              '-backend-config="secret_key=${}"'.format(
-                            os.path.join(BASE_DIR, "terraform"),
-                            TF_VAR_ACCESS_KEY_ID,
-                            TF_VAR_ACCESS_KEY_SECRET,
-                        )
+    command = 'cd {terraform_path} && terraform init \\\n    ' \
+              '-backend-config="access_key={tf_var_access_key_id}" \\\n    ' \
+              '-backend-config="secret_key={tf_var_access_key_secret}"'.format(
+        terraform_path=os.path.join(BASE_DIR, "terraform"),
+        tf_var_access_key_id=TF_VAR_ACCESS_KEY_ID,
+        tf_var_access_key_secret=TF_VAR_ACCESS_KEY_SECRET,
+    )
+
     os.system(command)
 
 

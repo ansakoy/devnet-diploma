@@ -1,13 +1,13 @@
-resource "yandex_compute_instance" "node-alertmanager" {
-  name                      = "node-alertmanager-${terraform.workspace}"
+resource "yandex_compute_instance" "node-monitoring" {
+  name                      = "node-monitoring-${terraform.workspace}"
   zone                      = var.yc_zone_1b
-  hostname                  = "alertmanager.${var.domain}"
+  hostname                  = "monitoring.${var.domain}"
   description = "Машина для алертов"
   platform_id = "standard-v2"
   allow_stopping_for_update = true
 
   resources {
-    cores  = 2
+    cores  = 4
     memory = 4
     core_fraction = local.instance_fraction[terraform.workspace]
   }
@@ -15,7 +15,7 @@ resource "yandex_compute_instance" "node-alertmanager" {
   boot_disk {
     initialize_params {
       image_id    = var.ubuntu2004  # Ставим заданную версию системы во избежание проблем с обновленными версиями
-      name        = "root-node-alertmanager"
+      name        = "root-node-monitoring"
       type        = "network-nvme"
       size        = "20"
     }

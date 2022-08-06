@@ -52,7 +52,7 @@
   ansible.builtin.unarchive:
     src: https://wordpress.org/latest.tar.gz
     dest: "/var/tmp"
-    remote_src: yes
+    remote_src: true
 
 - name: Copy WP files from /var/tmp to /var/www
   ansible.builtin.copy:
@@ -78,6 +78,9 @@
   ansible.builtin.template:
     src: "templates/wp-config.j2"
     dest: "/var/www/{{ base_domain }}/wp-config.php"
+
+- name: Set permissions for wp-config.php
+  ansible.builtin.shell: "chown www-data:www-data /var/www/{{ base_domain }}/wp-config.php && chmod 755 /var/www/{{ base_domain }}/wp-config.php"
 
 - name: Restart NGINX
   ansible.builtin.service:

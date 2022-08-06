@@ -1,0 +1,17 @@
+prometheus_user: "{{ monitor_user }}"
+prometheus_group: "{{ monitor_user }}"
+
+prometheus_version: 2.36.2
+prometheus_binary_local_dir: ''
+prometheus_skip_install: false
+prometheus_binary_install_dir: '/usr/local/bin'
+prometheus_config_dir: /etc/prometheus
+prometheus_db_dir: /var/lib/prometheus
+prometheus_read_only_dirs: []
+
+prometheus_web_listen_address: "0.0.0.0:9090"
+prometheus_web_external_url: ''
+prometheus_storage_retention: "30d"
+prometheus_storage_retention_size: "0"
+prometheus_config_flags_extra: {}
+

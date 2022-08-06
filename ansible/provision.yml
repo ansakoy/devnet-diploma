@@ -14,6 +14,7 @@
     ansible_host_key_checking: false
   roles:
     - nginx
+    - node_exporter
 
 - hosts: databases
   become: true
@@ -25,6 +26,7 @@
     ansible_host_key_checking: false
   roles:
     - mysql
+    - node_exporter
 
 - hosts: www
   become: true
@@ -36,3 +38,51 @@
     ansible_host_key_checking: false
   roles:
     - wordpress
+    - node_exporter
+
+- hosts: gitlab
+  become: true
+  gather_facts: false
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  vars:
+    ansible_host_key_checking: false
+  roles:
+    - gitlab
+    - node_exporter
+
+- hosts: runner
+  become: true
+  gather_facts: false
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  vars:
+    ansible_host_key_checking: false
+  roles:
+    - gitlab_runner
+    - node_exporter
+
+- hosts: runner
+  become: true
+  gather_facts: false
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  vars:
+    ansible_host_key_checking: false
+  roles:
+    - gitlab_runner
+    - node_exporter
+
+- hosts: monitoring
+  become: true
+  become_method: sudo
+  become_user: root
+  remote_user: ubuntu
+  roles:
+   - prometheus
+   - grafana
+   - alertmanager
+   - node_exporter

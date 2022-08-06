@@ -1,0 +1,15 @@
+alertmanager_release_url: "https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz"
+alertmanager_user: "{{ prometheus_user }}"
+alertmanager_group: "{{ prometheus_group }}"
+alertmanager_install_path: "/opt"
+alertmanager_bin_path: "/usr/local/bin"
+
+alertmanager_config_path: "/etc/alertmanager"
+alertmanager_config_file: "alertmanager.yml"
+alertmanager_config: {}
+alertmanager_templates_path: "{{ alertmanager_config_path }}/templates"
+alertmanager_listen_address: "0.0.0.0:9093"
+alertmanager_storage_path: "/var/lib/alertmanager"
+alertmanager_storage_retention: "120h"
+alertmanager_log_level: "info"
+alertmanager_additional_cli_args: ""
