@@ -55,6 +55,9 @@
   ansible.builtin.template:
     src: templates/ssh_conf.j2
     dest: /home/ubuntu/.ssh/config
+    mode: "0700"
+    owner: ubuntu
+    group: ubuntu
     backup: true
 
 - name: Copy SSH private key to proxy-ubuntu
@@ -111,6 +114,14 @@
     - "{{ address_db01 }}"
     - "{{ address_db02 }}"
     - "{{ nat_ip_address }}"
+
+
+- name: Change file ownership, group and permissions
+  ansible.builtin.file:
+    path: /home/ubuntu/.ssh/known_hosts
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
 
 
 - name: Copy hosts config
